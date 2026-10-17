@@ -1,0 +1,12 @@
+[package]
+name = "albe-core"
+description = "Pure business logic for AlbeCurrency: USD/LBP money, change check, receipt parsing."
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+regex.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
