@@ -1,0 +1,48 @@
+
+name: Deploy AlbeCurrency
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install dependencies
+        run: |
+          cargo install wasm-bindgen-cli --version 0.2.129 --locked
+          npm ci
+
+      - name: Build
+        run: npm run build -- --base=/AlbeCurrency/
+
+      - name: Exclude images pending license verification
+        run: |
+          rm -f dist/bills/lbp-{5000,10000,20000,50000,100000}.jpg
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
